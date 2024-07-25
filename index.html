@@ -368,7 +368,7 @@
             // Initialize the date range picker
             $('#daterange').daterangepicker({
                 "showDropdowns": false,
-                "autoApply": true,
+                "autoApply": false,
                 "locale": {
                     "format": "DD.MM.YYYY",
                     "separator": " - ",
@@ -386,7 +386,7 @@
                     ],
                     "firstDay": 1
                 },
-                "linkedCalendars": false,
+                "linkedCalendars": true,
                 "showCustomRangeLabel": false,
                 "startDate": defaultStart,
                 "endDate": defaultEnd,
@@ -415,7 +415,9 @@
             { date: "05-01", title: "Svátek práce" },
             { date: "12-24", title: "Štědrý den" },
             { date: "12-25", title: "1. svátek vánoční" },
-            { date: "12-26", title: "2. svátek vánoční" }
+            { date: "12-26", title: "2. svátek vánoční" },
+            { date: "12-31", title: "Silvestr" } // Adding New Year's Eve as a holiday
+
         ];
 
         function formatPrice(price) {
@@ -437,11 +439,14 @@
             const day = date.getDay();
             return day === 5 || day === 6;
         }
+  
         function containsNewYear(dateFrom, dateTo) {
-            const newYearEve = new Date(dateFrom.getFullYear(), 11, 31); // December 31 of the same year
-            return dateFrom <= newYearEve && dateTo >= newYearEve;
+            const newYearEve = new Date(dateFrom.getFullYear(), 11, 31); // 31. prosinec daného roku
+            const newYearDay = new Date(dateFrom.getFullYear() + 1, 0, 1); // 1. leden následujícího roku
+            return (dateFrom <= newYearEve && dateTo >= newYearEve) || (dateFrom <= newYearDay && dateTo >= newYearDay);
         }
-
+        
+        
         function calculatePrice(formId, resultId, apartment) {
             const dateRange = $('#daterange').val().split(' - ');
             const dateFrom = new Date(dateRange[0].split('.').reverse().join('-'));
@@ -488,7 +493,7 @@
             }
 
             let breakdown = `<table class="table">
-            <tr class="text-bold"><th>Den</th><th>Typ ceny</th><th>Dospělých osob</th><th>Neobsazených postelí</th><th>Poplatek za mazlíčka</th>${priplatekth}<th>Cena</th></tr>`;
+            <tr class="text-bold"><th>Noc</th><th>Cena</th><th>Dospělých osob</th><th>Neobsazených postelí</th><th>Poplatek za mazlíčka</th>${priplatekth}<th>Cena</th></tr>`;
 
             for (let day = new Date(dateFrom); day < dateTo; day.setDate(day.getDate() + 1)) {
                 let dayPrice = 0;
@@ -504,13 +509,18 @@
                     alert('Minimální počet nocí ubytování přes Silvestr je 4.');
                     return;
                 }
-                else if (containsNewYear(dateFrom, dateTo) && day <= new Date(dateFrom.getFullYear(), 11, 31)) {
-                    people = 10;
-                    document.getElementById(`people${apartment}`).value = 10;
-                    priceType = 'Silvestr';
-                    occupiedBedsPrice = silvestrPrice * people;
-                    occupiedBedsPriceTitle = people + ' x ' + silvestrPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
-                }
+                else if (containsNewYear(dateFrom, dateTo) && 
+                (day >= new Date(dateFrom.getFullYear(), 11, 30) && day <= new Date(dateFrom.getFullYear() + 1, 0, 3))) {
+                
+                people = 10;
+                document.getElementById(`people${apartment}`).value = 10;
+                priceType = 'Silvestr';
+                occupiedBedsPrice = silvestrPrice * people;
+                occupiedBedsPriceTitle = people + ' x ' + silvestrPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+            }
+            
+            
+                
                 else if (holiday) {
                     priceType = 'Sváteční';
                     holidayTitle = holiday.title;
@@ -521,7 +531,7 @@
                     occupiedBedsPrice = weekendPrice * people;
                     occupiedBedsPriceTitle = people + ' x ' + weekendPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
                 } else {
-                    priceType = 'Všední den';
+                    priceType = 'Normální';
                     occupiedBedsPrice = standardPrice * people;
                     occupiedBedsPriceTitle = people + ' x ' + standardPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
                 }
@@ -590,7 +600,8 @@
 
             document.querySelector('.reservationDiv').classList.toggle("visible");
            
-        }document.addEventListener('DOMContentLoaded', function() {
+        }
+        document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('#priceCalculatorA');
             const kalkulaceSection = document.querySelector('#collapseTwo');
             const kalkulaceButton = document.querySelector('.collapseTwo');
