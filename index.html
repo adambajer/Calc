@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&amp;display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..700;1,100..700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&amp;family=Montserrat:ital,wght@0,100..900;1,100..900&amp;display=swap"
+        rel="stylesheet">
+    <link rel="profile" href="https://gmpg.org/xfn/11">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="https://selsky-dvur.info/wp-content/themes/selsky-dvur-2024/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="https://selsky-dvur.info/wp-content/themes/selsky-dvur-2024/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="https://selsky-dvur.info/wp-content/themes/selsky-dvur-2024/favicon-16x16.png">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Kalkulátor</title>
+    <style>
+        body,
+        button,
+        input,
+        select,
+        optgroup,
+        textarea {
+            color: #404040;
+            font-family: "Roboto";
+
+            font-size: 1.2rem;
+            line-height: 1.5;
+        }
+
+        input {
+            font-family: "Roboto Mono", monospace;
+        }
+
+        a,
+        a:focus {
+            color: #000;
+        }
+
+
+
+        span.holiday-info {
+            border: 1px solid #18729c;
+            width: 25px;
+            height: 25px;
+            color: white;
+            background: #18729c;
+            display: inline-block;
+            text-align: center;
+            border-radius: 100%;
+            font-size: 16px;
+            position: absolute;
+            left: 0px;
+            cursor: pointer;
+        }
+
+        tr td {
+            position: relative;
+        }
+
+
+
+        .container {
+            max-width: 1600px;
+        }
+
+        div#apartmentTabsContent {}
+
+        .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {}
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-group-inline {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            flex: 1;
+            margin-right: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group:last-child {
+            margin-right: 0;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            box-sizing: border-box;
+            color: #333;
+            /* Added margin-top to create space for the label */
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: black;
+
+            width: 100%;
+        }
+
+
+
+        .btn-primary {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .result {
+
+            display: none;
+        }
+
+        .breakdown {
+            margin-top: 10px;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .breakdown table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .breakdown th,
+        .breakdown td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .breakdown th {
+            background-color: #f2f2f2;
+        }
+
+        .summary {
+            margin-top: 20px;
+        }
+
+        .navbar-brand {
+            margin: 0px auto;
+            width: 100%;
+            text-align: center;
+        }
+
+        .table td,
+        .table th {
+            padding: 0px;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-right: 4px;
+        }
+
+        .table td,
+        .table th {
+            text-align: right;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .text-bold td,
+        .text-bold th {}
+
+        h3 {
+            margin-bottom: 1rem;
+
+        }
+
+        .reservationDiv {
+            display: none;
+        }
+
+        .reservationDiv.visible {
+            display: block;
+        }
+
+        #reservationForm {}
+
+        .celkova td {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h3 class="mt-3">Zadání</h3>
+        <div class="aa border p-2 mb-3 ">
+
+
+
+
+            <form id="priceCalculatorA">
+                <div class="form-group-inline p-2">
+           
+                    <div class="input-daterange" id="datepicker">
+                        <div class="form-group">
+                            <label for="dateFromA">Příjezd</label>
+                            <input type="text"  id="dateFromA" class="input-sm form-control" name="dateFromA" required/>
+                        </div>
+                  
+                        <div class="form-group">
+                            <label for="dateToA">Odjezd</label>
+
+                            <input type="text" class="input-sm form-control" id="dateToA" name="dateToA" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="peopleA">Postelí</label>
+                        <select class="form-control mb-3 ps-3" id="peopleA" name="peopleA" required
+                            onchange="updateRemainingBeds()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                        </select>
+  <label for="remainingBeds">Neobsazených</label>
+                        <input class="form-control" type="number" id="remainingBeds" readonly>
+                    </div>
+                       
+                     <div class="form-group">
+                        <label for="petsA">Mazlíčků</label>
+                        <select class="form-control" id="petsA" name="petsA" required>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                   
+<div class="form-group">
+<button type="submit" class="btn btn-primary h-100">Spočítej</button>
+</div>
+                </div>
+
+
+            </form>
+        </div>
+        <h3>Kalkulace</h3>
+        <div id="result" class="result mb-3"></div>
+        <div id="recap" class="mb-3"></div>
+        <h3>Poptávka</h3>
+
+        <div class="reservationDiv mb-3">
+            <form id="reservationForm">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="contact">Telefon</label>
+                            <input type="text" class="form-control" id="contact" name="contact" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Odeslat</button>
+                    </div>
+                </div>
+            </form>
+            <!--<form id="reservationForm">
+                <div class="row">
+                    <div class="col">
+                        <h4>Zákazník</h4>
+                        <div class="row pb-2">
+                            <div class="col">
+                                <div class="form-group">
+
+                                    <label for="surname">Příjmení</label>
+                                    <input type="text" class="form-control" id="surname" name="surname">
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="name">Jméno</label>
+                                    <input type="text" class="form-control" id="name" name="name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="address">Adresa</label>
+                                    <input type="text" class="form-control" id="address" name="address">
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="icdic">IČ/DIČ</label>
+                                    <input type="text" class="form-control" id="icdic" name="icdic">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email">
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="phone">Telefon</label>
+                                    <input type="text" class="form-control" id="phone" name="phone">
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="payment">Způsob platby</label>
+                                    <select class="form-control" id="payment" name="payment">
+                                        <option value="zaloha">zálohová faktura + doplatek na místě</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="purpose">Účel</label>
+                                    <select class="form-control" id="purpose" name="purpose">
+                                        <option value="pracovni">Pracovní pobyt</option>
+                                        <option value="rekreace">Rekreace</option>
+                                        <option value="oslava">Rekreace a součástí oslava</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="dateFromA" >Příjezd</label>
+                                    <input class="form-control" type="date" id="dateFromA" readonly required>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="dateToA">Odjezd</label>
+                                    <input class="form-control" type="date" id="dateToA" readonly required>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h4>Počet ubytovaných</h4>
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="muzi">Muži</label>
+                                    <input class="form-control" type="number" id="muzi" required>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="deti">Děti</label>
+                                    <input class="form-control" type="number" id="deti" required>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="zeny">Ženy</label>
+                                    <input class="form-control" type="number" id="zeny" required>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="psi">Psi</label>
+                                    <input class="form-control" type="number" id="psi" required>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-danger" onclick="reservation()">Odeslat poptávku
+                    ubytování</button>
+            </form>
+        -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>    
+    <script src="./bootstrap-datepicker.js"></script>
+
+    <script>
+        $('.input-daterange').datepicker({
+            format: "dd.mm",
+            weekStart: 1,
+            todayBtn: true,
+            language: "cs",
+            multidate: false,
+            multidateSeparator: "do",
+            calendarWeeks: true,
+            todayHighlight: true
+        });
+        // Set dateFromA to current date plus two days
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateFromA = document.getElementById('dateFromA');
+            const today = new Date();
+            today.setDate(today.getDate() + 2);
+            dateFromA.value = today.toISOString().split('T')[0];
+        });
+
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+        const holidays = [
+            { date: "01-01", title: "Den obnovy samostatného českého státu" },
+            { date: "05-08", title: "Den vítězství" },
+            { date: "07-05", title: "Den slovanských věrozvěstů Cyrila a Metoděje" },
+            { date: "07-06", title: "Den upálení mistra Jana Husa" },
+            { date: "09-28", title: "Den české státnosti" },
+            { date: "10-28", title: "Den vzniku samostatného československého státu" },
+            { date: "11-17", title: "Den boje za svobodu a demokracii" },
+            { date: "01-01", title: "Nový rok" },
+            { date: "04-04", title: "Velký pátek" }, // Example date for Velký pátek (Good Friday)
+            { date: "04-05", title: "Velikonoční pondělí" }, // Example date for Velikonoční pondělí (Easter Monday)
+            { date: "05-01", title: "Svátek práce" },
+            { date: "12-24", title: "Štědrý den" },
+            { date: "12-25", title: "1. svátek vánoční" },
+            { date: "12-26", title: "2. svátek vánoční" }
+        ];
+
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        function isHoliday(date) {
+            const formattedDate = date.toISOString().slice(5, 10); // format as MM-DD
+            return holidays.includes(formattedDate);
+        }
+
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 5 || day === 6;
+        }
+        function containsNewYear(dateFrom, dateTo) {
+            const newYearEve = new Date(dateFrom.getFullYear(), 11, 31); // December 31 of the same year
+            return dateFrom <= newYearEve && dateTo >= newYearEve;
+        }
+
+        function calculatePrice(formId, resultId, apartment) {
+            const dateFrom = new Date(document.getElementById(`dateFrom${apartment}`).value);
+            const dateTo = new Date(document.getElementById(`dateTo${apartment}`).value);
+            let people = parseInt(document.getElementById(`people${apartment}`).value, 10);
+            const pets = parseInt(document.getElementById(`pets${apartment}`).value, 10);
+
+            const diffTime = Math.abs(dateTo - dateFrom);
+            const diffNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // Check for negative or zero nights
+            if ((dateTo - dateFrom) <= 0) {
+                alert('Datum odjezdu je menší nebo rovno datu příjezdu, nelze spočítat. Počet nocí musí být kladný.');
+                return;
+            }
+            if (diffNights < 1) {
+                alert('Minimální počet nocí ubytování je 1.');
+                return;
+            }
+
+            let capacity, standardPrice, weekendPrice, unusedBedPrice, holidayPrice, silvestrPrice;
+            if (apartment === 'A') {
+                capacity = 11;
+                standardPrice = 500;
+                weekendPrice = 600;
+                unusedBedPrice = 200;
+                holidayPrice = 600;
+                silvestrPrice = 650;
+            } else {
+                capacity = 6;
+                standardPrice = 500;
+                weekendPrice = 600;
+                unusedBedPrice = 200;
+                holidayPrice = 600;
+                silvestrPrice = 650;
+            }
+
+            let totalPrice = 0;
+            let priplatekth = '';
+            let priplatektd = '';
+
+            if (diffNights === 1) {
+                priplatektd = '<td></td>';
+                priplatekth = '<th>Příplatek 30%</th>';
+            }
+
+            let breakdown = `<table class="table">
+            <tr class="text-bold"><th>Den</th><th>Typ ceny</th><th>Obsazených postelí</th><th>Neobsazených postelí</th><th>Poplatek za mazlíčka</th>${priplatekth}<th>Cena</th></tr>`;
+
+            for (let day = new Date(dateFrom); day < dateTo; day.setDate(day.getDate() + 1)) {
+                let dayPrice = 0;
+                let dateString = formatDate(day);
+                let occupiedBedsPrice = 0;
+                let unoccupiedBedsPrice = 0;
+                let petCharge = 0;
+                let priceType = '';
+                let holidayTitle = '';
+                const holiday = holidays.find(holiday => holiday.date === `${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`);
+
+                // Check for New Year special condition
+                if (containsNewYear(dateFrom, dateTo) && diffNights < 4) {
+                    alert('Minimální počet nocí ubytování přes Silvestr je 4.');
+                    return;
+                }
+                else if (containsNewYear(dateFrom, dateTo) && day <= new Date(dateFrom.getFullYear(), 11, 31)) {
+                    people = 10; // Fixed 10 used beds
+                    document.getElementById(`people${apartment}`).value = 10;
+                    priceType = 'Silvestr';
+                    occupiedBedsPrice = silvestrPrice * people;
+                    occupiedBedsPriceTitle = people + ' x ' + silvestrPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+                }
+                else if (holiday) {
+                    priceType = 'Sváteční';
+                    holidayTitle = holiday.title;
+                    occupiedBedsPrice = holidayPrice * people;
+                    occupiedBedsPriceTitle = people + ' x ' + holidayPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+                } else if (isWeekend(day)) {
+                    priceType = 'Víkendová';
+                    occupiedBedsPrice = weekendPrice * people;
+                    occupiedBedsPriceTitle = people + ' x ' + weekendPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+                } else {
+                    priceType = 'Všední den';
+                    occupiedBedsPrice = standardPrice * people;
+                    occupiedBedsPriceTitle = people + ' x ' + standardPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+                }
+
+                unoccupiedBedsPrice = unusedBedPrice * (capacity - people);
+                unoccupiedBedsPriceTitle = (capacity - people) + ' x ' + unusedBedPrice + ' = ' + formatPrice(unoccupiedBedsPrice) + ' CZK';
+
+                if (pets > 0) {
+                    petCharge = pets * 200;
+                }
+
+                dayPrice = occupiedBedsPrice + unoccupiedBedsPrice + petCharge;
+
+                // Apply 30% surcharge if staying for one day on weekdays
+                if (diffNights === 1) {
+                    const surcharge = dayPrice * 0.3;
+                    dayPrice += surcharge;
+                    breakdown += `<tr>
+                        <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}"><span class="holiday-info" title="${holidayTitle} | 30% příplatek za 1 den">i</span>${dateString}</td>
+                        <td>${priceType}</td>
+                        <td>${occupiedBedsPriceTitle}</td>
+                        <td>${unoccupiedBedsPriceTitle}</td>
+                        <td>${formatPrice(petCharge)} CZK</td>
+                        <td>${formatPrice(surcharge)} CZK</td>
+                        <td>${formatPrice(dayPrice)} CZK</td>
+                    </tr>`;
+                } else {
+                    breakdown += `<tr>
+                        <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}">${holiday ? `<span class="holiday-info" title="${holidayTitle}">i</span>` : ''} ${dateString}</td>
+                        <td>${priceType}</td>
+                        <td>${occupiedBedsPriceTitle}</td>
+                        <td>${unoccupiedBedsPriceTitle}</td>
+                        <td>${formatPrice(petCharge)} CZK</td>
+                        <td>${formatPrice(dayPrice)} CZK</td>
+                    </tr>`;
+                }
+
+                totalPrice += dayPrice;
+            }
+
+            breakdown += `<tr class="text-bold celkova bg-secondary">
+                <td></td>
+                <td>Celková cena</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                ${priplatektd}
+                <td>${formatPrice(totalPrice)} CZK</td>
+            </tr></table>`;
+
+            const summary = `<table class="table">
+                <thead>
+                    <tr class="text-bold"><th>Příjezd</th><th>Odjezd</th><th>Nocí</th><th>Obsazených postelí</th><th>Neobsazených postelí</th><th>Počet mazlíčků</th></thead>
+                </tr>
+                <tr>
+                    <td>${formatDate(dateFrom)}</td>
+                    <td>${formatDate(dateTo)}</td>
+                    <td>${diffNights}</td>
+                    <td>${people}</td>
+                    <td>${capacity - people}</td> 
+                    <td>${pets}</td>
+                </tr>
+            </table>`;
+            let reserve = ``;
+            document.getElementById(resultId).innerHTML = breakdown;
+            document.getElementById(resultId).style.display = 'block';
+
+            document.querySelector('.reservationDiv').classList.toggle("visible");
+        }
+
+        function reservation() {
+            var surname = document.getElementById('surname').value;
+            var name = document.getElementById('name').value;
+            var address = document.getElementById('address').value;
+            var icdic = document.getElementById('icdic').value;
+            var email = document.getElementById('email').value;
+            var phone = document.getElementById('phone').value;
+            var payment = document.getElementById('payment').value;
+            var purpose = document.getElementById('purpose').value;
+
+            var reservationDetails = `<p>Příjmení: ${surname}</p>
+                                  <p>Jméno: ${name}</p>
+                                  <p>Adresa: ${address}</p>
+                                  <p>IČ/DIČ: ${icdic}</p>
+                                  <p>Email: ${email}</p>
+                                  <p>Telefon: ${phone}</p>
+                                  <p>Způsob platby: ${payment}</p>
+                                  <p>Účel: ${purpose}</p>`;
+
+            document.getElementById('result').innerHTML += reservationDetails;
+        }
+        document.getElementById('priceCalculatorA').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.getElementById('result').style.display = 'none';
+            setTimeout(() => calculatePrice('priceCalculatorA', 'result', 'A'), 500); // add a delay for animation effect
+            // Get values from priceCalculatorA form
+            const dateFrom = document.getElementById('dateFromA').value;
+            const dateTo = document.getElementById('dateToA').value;
+
+            // Set values in reservationForm
+            //document.querySelector('#reservationForm #dateFromA').value = dateFrom;
+            //document.querySelector('#reservationForm #dateToA').value = dateTo;
+
+
+        });
+
+        document.getElementById('priceCalculatorB').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.getElementById('result').style.display = 'none';
+            setTimeout(() => calculatePrice('priceCalculatorB', 'result', 'B'), 500); // add a delay for animation effect
+        });
+    </script>
+    <script>
+        function updateRemainingBeds() {
+            const totalBeds = 11;
+            const selectedPeople = document.getElementById("peopleA").value;
+            const remainingBeds = totalBeds - selectedPeople;
+            document.getElementById("remainingBeds").value = remainingBeds;
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            updateRemainingBeds();
+        });
+    </script>
+</body>
+
+</html>
