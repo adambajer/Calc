@@ -222,12 +222,12 @@
                             <div class="form-group">
                                 <label for="daterange">Termín</label>
                                 <input class="form-control mb-2"  type="text" id="daterange" name="daterange" value="18.07.2024 - 24.07.2024" />
-                                <label for="nights">Počet nocí</label>
+                                <label for="nights">nocí</label>
                                 <input class="form-control" type="number" id="nights" readonly disabled>
                             </div>
                             
                             <div class="form-group">
-                                <label for="peopleA">Dospělých osob</label>
+                                <label for="peopleA">Dospěli</label>
                                 <select class="form-control mb-2" id="peopleA" name="peopleA" required onchange="updateRemainingBeds()">
                                     <option value="1">1</option>
                                     <option value="2">2</option>
@@ -241,7 +241,7 @@
                                     <option value="10">10</option>
                                     <option value="11">11</option>
                                 </select>
-                                <label for="remainingBeds">Neobsazených postelí</label>
+                                <label for="remainingBeds">Neobsazených</label>
                                 <input class="form-control" type="number" id="remainingBeds" readonly disabled>
                             </div>
                             <div class="form-group">
@@ -448,21 +448,25 @@
         
         
         function calculatePrice(formId, resultId, apartment) {
-            const dateRange = $('#daterange').val().split(' - ');
-            const dateFrom = new Date(dateRange[0].split('.').reverse().join('-'));
-            const dateTo = new Date(dateRange[1].split('.').reverse().join('-'));
-            let people = parseInt(document.getElementById(`people${apartment}`).value, 10);
-            const pets = parseInt(document.getElementById(`pets${apartment}`).value, 10);
+    const dateRange = $('#daterange').val().split(' - ');
+    let dateFrom = new Date(dateRange[0].split('.').reverse().join('-'));
+    const dateTo = new Date(dateRange[1].split('.').reverse().join('-'));
 
-            const diffTime = Math.abs(dateTo - dateFrom);
-            const diffNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Přidáme jeden den k datu příjezdu pro správný výpočet první noci
+    dateFrom.setDate(dateFrom.getDate() + 1);
 
-            if ((dateTo - dateFrom) <= 0) {
-                alert('Datum odjezdu je menší nebo rovno datu příjezdu, nelze spočítat. Počet nocí musí být kladný.');
-                return;
-            }
+    let people = parseInt(document.getElementById(`people${apartment}`).value, 10);
+    const pets = parseInt(document.getElementById(`pets${apartment}`).value, 10);
+
+    const diffTime = Math.abs(dateTo - dateFrom);
+    const diffNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if ((dateTo - dateFrom) <= 0) {
+        alert('Datum odjezdu je menší nebo rovno datu příjezdu, nelze spočítat. Počet nocí musí být kladný.');
+        return;
+    }
             if (diffNights < 1) {
-                alert('Minimální počet nocí ubytování je 1.');
+                alert('Minimálně 1 nocí ubytování.');
                 return;
             }
 
@@ -493,7 +497,7 @@
             }
 
             let breakdown = `<table class="table">
-            <tr class="text-bold"><th>Noc</th><th>Cena</th><th>Dospělých osob</th><th>Neobsazených postelí</th><th>Poplatek za mazlíčka</th>${priplatekth}<th>Cena</th></tr>`;
+            <tr class="text-bold"><th>Noc</th><th>Cena</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíček</th>${priplatekth}<th>Cena</th></tr>`;
 
             for (let day = new Date(dateFrom); day < dateTo; day.setDate(day.getDate() + 1)) {
                 let dayPrice = 0;
@@ -506,7 +510,7 @@
                 const holiday = holidays.find(holiday => holiday.date === `${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`);
 
                 if (containsNewYear(dateFrom, dateTo) && diffNights < 4) {
-                    alert('Minimální počet nocí ubytování přes Silvestr je 4.');
+                    alert('Minimální nocí ubytování přes Silvestr je 4.');
                     return;
                 }
                 else if (containsNewYear(dateFrom, dateTo) && 
@@ -583,7 +587,7 @@
 
             const summary = `<table class="table">
                 <thead>
-                    <tr class="text-bold"><th>Příjezd</th><th>Odjezd</th><th>Nocí</th><th>Dospělých osob</th><th>Neobsazených postelí</th><th>Mazlíčků</th></thead>
+                    <tr class="text-bold"><th>Příjezd</th><th>Odjezd</th><th>Nocí</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíčků</th></thead>
                 </tr>
                 <tr>
                     <td>${formatDate(dateFrom)}</td>
@@ -671,7 +675,7 @@
             const lastName = document.getElementById('lastName').value;
   
 
-            alert(`Jméno: ${firstName}\nPříjmení: ${lastName}\nEmail: ${mail}\nTelefon: ${contact}\nPříjezd: ${formatDate(dateFrom)}\nOdjezd: ${formatDate(dateTo)}\nPočet nocí: ${diffNights}\nOsob: ${people}\nMazlíčků: ${pets}\nPoznámka: ${note}`);
+            alert(`Jméno: ${firstName}\nPříjmení: ${lastName}\nEmail: ${mail}\nTelefon: ${contact}\nPříjezd: ${formatDate(dateFrom)}\nOdjezd: ${formatDate(dateTo)}\nnocí: ${diffNights}\nOsob: ${people}\nMazlíčků: ${pets}\nPoznámka: ${note}`);
  
         
             // Optionally, you can submit the form here if needed
