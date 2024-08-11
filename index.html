@@ -447,13 +447,10 @@
         }
         
         
-        function calculatePrice(formId, resultId, apartment) {
+       function calculatePrice(formId, resultId, apartment) {
     const dateRange = $('#daterange').val().split(' - ');
-    let dateFrom = new Date(dateRange[0].split('.').reverse().join('-'));
+    const dateFrom = new Date(dateRange[0].split('.').reverse().join('-'));
     const dateTo = new Date(dateRange[1].split('.').reverse().join('-'));
-
-    // Přidáme jeden den k datu příjezdu pro správný výpočet první noci
-    dateFrom.setDate(dateFrom.getDate() + 1);
 
     let people = parseInt(document.getElementById(`people${apartment}`).value, 10);
     const pets = parseInt(document.getElementById(`pets${apartment}`).value, 10);
@@ -461,150 +458,143 @@
     const diffTime = Math.abs(dateTo - dateFrom);
     const diffNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if ((dateTo - dateFrom) <= 0) {
+    if (diffNights <= 0) {
         alert('Datum odjezdu je menší nebo rovno datu příjezdu, nelze spočítat. Počet nocí musí být kladný.');
         return;
     }
-            if (diffNights < 1) {
-                alert('Minimálně 1 nocí ubytování.');
-                return;
-            }
 
-            let capacity, standardPrice, weekendPrice, unusedBedPrice, holidayPrice, silvestrPrice;
-            if (apartment === 'A') {
-                capacity = 11;
-                standardPrice = 500;
-                weekendPrice = 600;
-                unusedBedPrice = 200;
-                holidayPrice = 600;
-                silvestrPrice = 650;
-            } else {
-                capacity = 6;
-                standardPrice = 500;
-                weekendPrice = 600;
-                unusedBedPrice = 200;
-                holidayPrice = 600;
-                silvestrPrice = 650;
-            }
+    let capacity, standardPrice, weekendPrice, unusedBedPrice, holidayPrice, silvestrPrice;
+    if (apartment === 'A') {
+        capacity = 11;
+        standardPrice = 500;
+        weekendPrice = 600;
+        unusedBedPrice = 200;
+        holidayPrice = 600;
+        silvestrPrice = 650;
+    } else {
+        capacity = 6;
+        standardPrice = 500;
+        weekendPrice = 600;
+        unusedBedPrice = 200;
+        holidayPrice = 600;
+        silvestrPrice = 650;
+    }
 
-            let totalPrice = 0;
-            let priplatekth = '';
-            let priplatektd = '';
+    let totalPrice = 0;
+    let priplatekth = '';
+    let priplatektd = '';
 
-            if (diffNights === 1) {
-                priplatektd = '<td></td>';
-                priplatekth = '<th>Příplatek 30%</th>';
-            }
+    if (diffNights === 1) {
+        priplatektd = '<td></td>';
+        priplatekth = '<th>Příplatek 30%</th>';
+    }
 
-            let breakdown = `<table class="table">
-            <tr class="text-bold"><th>Noc</th><th>Cena</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíček</th>${priplatekth}<th>Cena</th></tr>`;
+    let breakdown = `<table class="table">
+    <tr class="text-bold"><th>Noc</th><th>Cena</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíček</th>${priplatekth}<th>Cena</th></tr>`;
 
-            for (let day = new Date(dateFrom); day < dateTo; day.setDate(day.getDate() + 1)) {
-                let dayPrice = 0;
-                let dateString = formatDate(day);
-                let occupiedBedsPrice = 0;
-                let unoccupiedBedsPrice = 0;
-                let petCharge = 0;
-                let priceType = '';
-                let holidayTitle = '';
-                const holiday = holidays.find(holiday => holiday.date === `${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`);
+    for (let i = 0; i < diffNights; i++) {
+        let day = new Date(dateFrom);
+        day.setDate(day.getDate() + i);
+        let dayPrice = 0;
+        let dateString = formatDate(day);
+        let occupiedBedsPrice = 0;
+        let unoccupiedBedsPrice = 0;
+        let petCharge = 0;
+        let priceType = '';
+        let holidayTitle = '';
+        const holiday = holidays.find(holiday => holiday.date === `${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`);
 
-                if (containsNewYear(dateFrom, dateTo) && diffNights < 4) {
-                    alert('Minimální nocí ubytování přes Silvestr je 4.');
-                    return;
-                }
-                else if (containsNewYear(dateFrom, dateTo) && 
-                (day >= new Date(dateFrom.getFullYear(), 11, 30) && day <= new Date(dateFrom.getFullYear() + 1, 0, 3))) {
-                
-                people = 10;
-                document.getElementById(`people${apartment}`).value = 10;
-                priceType = 'Silvestr';
-                occupiedBedsPrice = silvestrPrice * people;
-                occupiedBedsPriceTitle = people + ' x ' + silvestrPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
-            }
-            
-            
-                
-                else if (holiday) {
-                    priceType = 'Sváteční';
-                    holidayTitle = holiday.title;
-                    occupiedBedsPrice = holidayPrice * people;
-                    occupiedBedsPriceTitle = people + ' x ' + holidayPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
-                } else if (isWeekend(day)) {
-                    priceType = 'Víkendová';
-                    occupiedBedsPrice = weekendPrice * people;
-                    occupiedBedsPriceTitle = people + ' x ' + weekendPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
-                } else {
-                    priceType = 'Normální';
-                    occupiedBedsPrice = standardPrice * people;
-                    occupiedBedsPriceTitle = people + ' x ' + standardPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
-                }
-
-                unoccupiedBedsPrice = unusedBedPrice * (capacity - people);
-                unoccupiedBedsPriceTitle = (capacity - people) + ' x ' + unusedBedPrice + ' = ' + formatPrice(unoccupiedBedsPrice) + ' CZK';
-
-                if (pets > 0) {
-                    petCharge = pets * 200;
-                }
-
-                dayPrice = occupiedBedsPrice + unoccupiedBedsPrice + petCharge;
-
-                if (diffNights === 1) {
-                    const surcharge = dayPrice * 0.3;
-                    dayPrice += surcharge;
-                    breakdown += `<tr>
-                        <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}"><span class="holiday-info" title="${holidayTitle} | 30% příplatek za 1 den">i</span>${dateString}</td>
-                        <td>${priceType}</td>
-                        <td>${occupiedBedsPriceTitle}</td>
-                        <td>${unoccupiedBedsPriceTitle}</td>
-                        <td>${formatPrice(petCharge)} CZK</td>
-                        <td>${formatPrice(surcharge)} CZK</td>
-                        <td>${formatPrice(dayPrice)} CZK</td>
-                    </tr>`;
-                } else {
-                    breakdown += `<tr>
-                        <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}">${holiday ? `<span class="holiday-info" title="${holidayTitle}">i</span>` : ''} ${dateString}</td>
-                        <td>${priceType}</td>
-                        <td>${occupiedBedsPriceTitle}</td>
-                        <td>${unoccupiedBedsPriceTitle}</td>
-                        <td>${formatPrice(petCharge)} CZK</td>
-                        <td>${formatPrice(dayPrice)} CZK</td>
-                    </tr>`;
-                }
-
-                totalPrice += dayPrice;
-            }
-
-            breakdown += `<tr class="text-bold celkova bg-secondary">
-                <td></td>
-                <td>Celková cena</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                ${priplatektd}
-                <td>${formatPrice(totalPrice)} CZK</td>
-            </tr></table>`;
-
-            const summary = `<table class="table">
-                <thead>
-                    <tr class="text-bold"><th>Příjezd</th><th>Odjezd</th><th>Nocí</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíčků</th></thead>
-                </tr>
-                <tr>
-                    <td>${formatDate(dateFrom)}</td>
-                    <td>${formatDate(dateTo)}</td>
-                    <td>${diffNights}</td>
-                    <td>${people}</td>
-                    <td>${capacity - people}</td>
-                    <td>${pets}</td>
-                </tr>
-            </table>`;
-
-            document.getElementById(resultId).innerHTML = breakdown;
-            document.getElementById(resultId).style.display = 'block';
-
-            document.querySelector('.reservationDiv').classList.toggle("visible");
-           
+        if (containsNewYear(dateFrom, dateTo) && diffNights < 4) {
+            alert('Minimální nocí ubytování přes Silvestr je 4.');
+            return;
         }
+        else if (containsNewYear(dateFrom, dateTo) && 
+        (day >= new Date(dateFrom.getFullYear(), 11, 30) && day <= new Date(dateFrom.getFullYear() + 1, 0, 3))) {
+        
+        people = 10;
+        document.getElementById(`people${apartment}`).value = 10;
+        priceType = 'Silvestr';
+        occupiedBedsPrice = silvestrPrice * people;
+        occupiedBedsPriceTitle = people + ' x ' + silvestrPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+    } else if (holiday) {
+            priceType = 'Sváteční';
+            holidayTitle = holiday.title;
+            occupiedBedsPrice = holidayPrice * people;
+            occupiedBedsPriceTitle = people + ' x ' + holidayPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+        } else if (isWeekend(day)) {
+            priceType = 'Víkendová';
+            occupiedBedsPrice = weekendPrice * people;
+            occupiedBedsPriceTitle = people + ' x ' + weekendPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+        } else {
+            priceType = 'Normální';
+            occupiedBedsPrice = standardPrice * people;
+            occupiedBedsPriceTitle = people + ' x ' + standardPrice + ' = ' + formatPrice(occupiedBedsPrice) + ' CZK';
+        }
+
+        unoccupiedBedsPrice = unusedBedPrice * (capacity - people);
+        unoccupiedBedsPriceTitle = (capacity - people) + ' x ' + unusedBedPrice + ' = ' + formatPrice(unoccupiedBedsPrice) + ' CZK';
+
+        if (pets > 0) {
+            petCharge = pets * 200;
+        }
+
+        dayPrice = occupiedBedsPrice + unoccupiedBedsPrice + petCharge;
+
+        if (diffNights === 1) {
+            const surcharge = dayPrice * 0.3;
+            dayPrice += surcharge;
+            breakdown += `<tr>
+                <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}"><span class="holiday-info" title="${holidayTitle} | 30% příplatek za 1 den">i</span>${dateString}</td>
+                <td>${priceType}</td>
+                <td>${occupiedBedsPriceTitle}</td>
+                <td>${unoccupiedBedsPriceTitle}</td>
+                <td>${formatPrice(petCharge)} CZK</td>
+                <td>${formatPrice(surcharge)} CZK</td>
+                <td>${formatPrice(dayPrice)} CZK</td>
+            </tr>`;
+        } else {
+            breakdown += `<tr>
+                <td title=" ${day.toLocaleDateString('cs-CZ', { weekday: 'long' })}">${holiday ? `<span class="holiday-info" title="${holidayTitle}">i</span>` : ''} ${dateString}</td>
+                <td>${priceType}</td>
+                <td>${occupiedBedsPriceTitle}</td>
+                <td>${unoccupiedBedsPriceTitle}</td>
+                <td>${formatPrice(petCharge)} CZK</td>
+                <td>${formatPrice(dayPrice)} CZK</td>
+            </tr>`;
+        }
+
+        totalPrice += dayPrice;
+    }
+
+    breakdown += `<tr class="text-bold celkova bg-secondary">
+        <td></td>
+        <td>Celková cena</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        ${priplatektd}
+        <td>${formatPrice(totalPrice)} CZK</td>
+    </tr></table>`;
+
+    const summary = `<table class="table">
+        <thead>
+            <tr class="text-bold"><th>Příjezd</th><th>Odjezd</th><th>Nocí</th><th>Dospělí</th><th>Neobsazených</th><th>Mazlíčků</th></thead>
+        </tr>
+        <tr>
+            <td>${formatDate(dateFrom)}</td>
+            <td>${formatDate(dateTo)}</td>
+            <td>${diffNights}</td>
+            <td>${people}</td>
+            <td>${capacity - people}</td>
+            <td>${pets}</td>
+        </tr>
+    </table>`;
+
+    document.getElementById(resultId).innerHTML = breakdown;
+    document.getElementById(resultId).style.display = 'block';
+
+    document.querySelector('.reservationDiv').classList.toggle("visible");
+}
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('#priceCalculatorA');
             const kalkulaceSection = document.querySelector('#collapseTwo');
